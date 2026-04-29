@@ -21,58 +21,79 @@ Program to implement the the Logistic Regression Model to Predict the Placement 
 Developed by: Ranjani S
 RegisterNumber: 212225230224
 
-import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+
+data = pd.DataFrame({
+    'cgpa': [6.8, 5.9, 5.3, 7.4, 5.8, 7.1, 6.5, 8.2, 5.0, 7.8],
+    'iq': [123, 106, 121, 132, 142, 115, 98, 140, 110, 128],
+    'placement': [1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
+})
+
+print("Dataset Preview:")
+print(data.head())
+
+X = data[['cgpa', 'iq']]
+y = data['placement']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
 
 
-X = np.array([[6.5, 1],
-              [7.0, 2],
-              [8.0, 2],
-              [5.5, 0],
-              [6.8, 1],
-              [7.5, 2],
-              [8.5, 3],
-              [5.0, 0]])
+y_pred = model.predict(X_test)
 
-y = np.array([[0], [1], [1], [0], [0], [1], [1], [0]])
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred, labels=[0, 1]))
 
-X = np.c_[np.ones(X.shape[0]), X]
+print("\nAccuracy Score:")
+print(accuracy_score(y_test, y_pred))
 
-weights = np.zeros((X.shape[1], 1))
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
 
-def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
+new_student = pd.DataFrame({
+    'cgpa': [7.5],
+    'iq': [120]
+})
 
+new_student = scaler.transform(new_student)
+prediction = model.predict(new_student)
 
-learning_rate = 0.01
-epochs = 1000
-
-
-for _ in range(epochs):
-    z = np.dot(X, weights)             
-    y_pred = sigmoid(z)                 
-    
-   
-    gradient = np.dot(X.T, (y_pred - y)) / len(y)
-   
-    weights = weights - learning_rate * gradient
-
-def predict(X_new):
-    X_new = np.c_[np.ones(X_new.shape[0]), X_new]
-    probs = sigmoid(np.dot(X_new, weights))
-    return (probs >= 0.5).astype(int)
+if prediction[0] == 1:
+    print("\nThe student is Placed")
+else:
+    print("\nThe student is Not Placed")
 
 
-new_student = np.array([[7.2, 2]])
-print("Prediction (1=Placed, 0=Not Placed):", predict(new_student)[0][0])
+cm = confusion_matrix(y_test, y_pred)
 
-print("Final Weights:\n", weights)
+plt.imshow(cm)
+plt.colorbar()
+
+for i in range(len(cm)):
+    for j in range(len(cm[0])):
+        plt.text(j, i, cm[i][j])
+
+plt.show()
  
 */
 ```
 
 ## Output:
 
-<img width="1150" height="911" alt="Screenshot 2026-04-29 113302" src="https://github.com/user-attachments/assets/41f5df9d-734b-468f-96bc-76a1cf65bd90" />
+<img width="1069" height="878" alt="Screenshot 2026-04-29 130357" src="https://github.com/user-attachments/assets/abd8504e-0bb1-4dc7-97b8-b209a085ab40" />
 
 
 ## Result:
